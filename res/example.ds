@@ -1,0 +1,79 @@
+// Discord Script
+
+int var = 3;
+string varStr = "test";
+float test = 6.312;
+boolean run = true;
+
+int[] zeros = arrayZero(10);
+
+while(run)
+{
+    var++;
+    test+= 4.03;
+
+    string counting = "";
+    for(int j = 0; j < var; j++)
+    {
+        counting+= '${j} - ';
+    }
+
+    run = false;
+    msg(counting);
+}
+
+(string, int) mostOccur = getMostCount(["Test", "Hello", "test", "Test", "hi!", "TEST", "Test", "☃"]);
+
+msg('The most common string is "${mostOccur[0]}" occuring ${mostOccur[1]} times!');
+
+/* 
+    This is a bulk comment commenting about how the below function is not used!
+*/
+void mathy(int a, int b)
+{
+    return a * b;
+}
+
+(string, int) getMostCount(string[] list)
+{
+    (string, int)[] map = [len(list)];
+
+    int nextAvail = 0;
+
+    for(string str: list)
+    {
+        int index = mapKeyIndex(map, str);
+        if(index == -1)
+        {
+            map[nextAvail] = (str, 1);
+            nextAvail++;
+        }
+        else
+        {
+            map[index][1]++;
+        }
+    }
+
+    (string, int) max = ("", 0);
+    for((string, int) entry: map)
+    {
+        if(entry[0] == "")
+            continue;
+
+        if(max[0] == "" || max[1] < entry[1])
+            max = entry;
+    }
+
+    return max;
+}
+
+boolean mapKeyIndex((string, int)[] map, string key)
+{
+    for(int i = 0; i < len(map); i++)
+    {
+        if(map[i][0] == 'key')
+            return i;
+    }
+
+    return -1;
+}

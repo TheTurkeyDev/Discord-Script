@@ -1,0 +1,16 @@
+plugins {
+    id 'java'
+}
+
+group 'dev.theturkey.discordscript'
+version '0.1'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "com.discord4j:discord4j-core:3.1.3"
+}
