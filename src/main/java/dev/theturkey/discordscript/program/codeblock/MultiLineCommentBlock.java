@@ -1,7 +1,7 @@
 package dev.theturkey.discordscript.program.codeblock;
 
 import dev.theturkey.discordscript.TokenStream;
-import dev.theturkey.discordscript.program.OutputWrapper;
+import dev.theturkey.discordscript.program.Scope;
 import dev.theturkey.discordscript.tokenizer.TokenEnum;
 
 public class MultiLineCommentBlock extends CodeBlock
@@ -20,7 +20,7 @@ public class MultiLineCommentBlock extends CodeBlock
 	}
 
 	@Override
-	public void execute(OutputWrapper out)
+	public void execute(Scope scope)
 	{
 
 	}

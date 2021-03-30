@@ -1,7 +1,7 @@
 package dev.theturkey.discordscript.program.codeblock;
 
 import dev.theturkey.discordscript.TokenStream;
-import dev.theturkey.discordscript.program.OutputWrapper;
+import dev.theturkey.discordscript.program.Scope;
 import dev.theturkey.discordscript.tokenizer.Token;
 import dev.theturkey.discordscript.tokenizer.TokenEnum;
 
@@ -43,9 +43,20 @@ public class ElseBlock extends CodeBlock
 	}
 
 	@Override
-	public void execute(OutputWrapper out)
+	public void execute(Scope scope)
 	{
+		Scope innerScope = new Scope(scope);
+		for(CodeBlock cb : internalCodeBlocks)
+		{
+			cb.execute(innerScope);
+			if(innerScope.isBreaked() || innerScope.isReturned() || innerScope.isContinued())
+				break;
+		}
 
+		if(innerScope.isReturned())
+			scope.setReturned(innerScope.getReturnVal());
+		if(innerScope.isContinued())
+			scope.setContinued();
 	}
 
 	@Override

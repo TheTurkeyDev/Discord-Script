@@ -1,7 +1,7 @@
 package dev.theturkey.discordscript.program.codeblock;
 
 import dev.theturkey.discordscript.TokenStream;
-import dev.theturkey.discordscript.program.OutputWrapper;
+import dev.theturkey.discordscript.program.Scope;
 import dev.theturkey.discordscript.tokenizer.Token;
 import dev.theturkey.discordscript.tokenizer.TokenEnum;
 
@@ -10,8 +10,9 @@ import java.util.List;
 
 public class IfBlock extends CodeBlock
 {
-	ConditionBlock conditionBlock;
+	private ConditionBlock conditionBlock;
 	private List<CodeBlock> internalCodeBlocks = new ArrayList<>();
+	private ElseBlock elseBlock = null;
 
 	public IfBlock(TokenStream wrapper)
 	{
@@ -47,13 +48,34 @@ public class IfBlock extends CodeBlock
 			internalCodeBlocks.add(parseCode(stream.getCurrentToken(), stream));
 		}
 
+		if(stream.peekNextRealToken().getType() == TokenEnum.ELSE)
+			elseBlock = new ElseBlock(stream);
+
 		return !stream.hasErrored();
 	}
 
 	@Override
-	public void execute(OutputWrapper out)
+	public void execute(Scope scope)
 	{
+		Scope innerScope = new Scope(scope);
+		if(conditionBlock.getValue(innerScope) && !innerScope.isBreaked() && !innerScope.isReturned() && !innerScope.isContinued())
+		{
+			for(CodeBlock cb : internalCodeBlocks)
+			{
+				cb.execute(innerScope);
+				if(innerScope.isBreaked() || innerScope.isReturned() || innerScope.isContinued())
+					break;
+			}
+		}
+		else
+		{
+			elseBlock.execute(scope);
+		}
 
+		if(innerScope.isReturned())
+			scope.setReturned(innerScope.getReturnVal());
+		if(innerScope.isContinued())
+			scope.setContinued();
 	}
 
 	@Override

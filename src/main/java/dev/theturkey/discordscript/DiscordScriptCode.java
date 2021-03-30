@@ -1,5 +1,6 @@
 package dev.theturkey.discordscript;
 
+import dev.theturkey.discordscript.program.DefaultScope;
 import dev.theturkey.discordscript.program.OutputWrapper;
 import dev.theturkey.discordscript.program.Program;
 import dev.theturkey.discordscript.tokenizer.Tokenizer;
@@ -14,7 +15,6 @@ import reactor.core.publisher.Mono;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.OutputStream;
 
 public class DiscordScriptCode
@@ -73,7 +73,7 @@ public class DiscordScriptCode
 			Program program = new Program(stream);
 			if(!stream.hasErrored())
 			{
-				program.execute(wrapper);
+				program.execute(new DefaultScope(wrapper));
 				long runTime = System.currentTimeMillis() - start;
 				returnStr.append("Program Complete! Ran in ").append(runTime).append("ms");
 			}

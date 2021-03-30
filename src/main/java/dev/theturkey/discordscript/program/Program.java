@@ -2,6 +2,7 @@ package dev.theturkey.discordscript.program;
 
 import dev.theturkey.discordscript.TokenStream;
 import dev.theturkey.discordscript.program.codeblock.CodeBlock;
+import dev.theturkey.discordscript.program.codeblock.FunctionBlock;
 import dev.theturkey.discordscript.tokenizer.Token;
 
 import java.util.ArrayList;
@@ -37,9 +38,15 @@ public class Program extends CodeBlock
 	}
 
 	@Override
-	public void execute(OutputWrapper out)
+	public void execute(Scope scope)
 	{
+		for(CodeBlock cb : codeBlocks)
+			if(cb instanceof FunctionBlock)
+				scope.registerFunction((FunctionBlock) cb);
 
+		Scope innerScope = new Scope(scope);
+		for(CodeBlock cb : codeBlocks)
+			cb.execute(innerScope);
 	}
 
 	@Override

@@ -1,17 +1,26 @@
 package dev.theturkey.discordscript.program.codeblock;
 
 import dev.theturkey.discordscript.TokenStream;
-import dev.theturkey.discordscript.program.OutputWrapper;
-import dev.theturkey.discordscript.program.VariableTypeWrapper;
+import dev.theturkey.discordscript.program.Scope;
+import dev.theturkey.discordscript.program.variables.VariableInstance;
+import dev.theturkey.discordscript.program.variables.VariableType;
 import dev.theturkey.discordscript.tokenizer.TokenEnum;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FunctionBlock extends CodeBlock
 {
-	List<CodeBlock> internalCodeBlocks;
+	protected String name;
+	private VariableType returnType;
+	private List<CodeBlock> internalCodeBlocks;
+	private List<VariableInstance> arguments = new ArrayList<>();
 
-	public FunctionBlock(TokenStream wrapper, VariableTypeWrapper returnType)
+	protected Object[] passedArgs;
+
+	private Object returnVal;
+
+	public FunctionBlock(TokenStream wrapper)
 	{
 		super(wrapper);
 	}
@@ -19,8 +28,12 @@ public class FunctionBlock extends CodeBlock
 	@Override
 	public boolean parse(TokenStream stream)
 	{
+		this.returnType = VariableType.getVariableType(stream);
+
 		if(!assertNextToken(TokenEnum.PLAIN_STRING))
 			return false;
+
+		this.name = stream.getTokenStr();
 
 		if(!assertNextToken(TokenEnum.LEFT_PARENTHESIS))
 			return false;
@@ -48,9 +61,47 @@ public class FunctionBlock extends CodeBlock
 	}
 
 	@Override
-	public void execute(OutputWrapper out)
+	public void execute(Scope scope)
 	{
+		Scope innerScope = new Scope(scope);
 
+		for(int i = 0; i < arguments.size(); i++)
+		{
+			VariableInstance variableInstance = arguments.get(i);
+			VariableInstance newVar = innerScope.createNewVariable(variableInstance.type, variableInstance.name, i < passedArgs.length ? passedArgs[i] : variableInstance.value);
+			newVar.setScope(innerScope);
+			newVar.setIsArray(variableInstance.isArray);
+		}
+
+		for(CodeBlock cb : internalCodeBlocks)
+		{
+			cb.execute(innerScope);
+			if(innerScope.isReturned())
+				break;
+		}
+
+		this.returnVal = innerScope.getReturnVal();
+	}
+
+	public void execute(Scope scope, Object[] passedArgs)
+	{
+		this.passedArgs = passedArgs;
+		this.execute(scope);
+	}
+
+	public Object getReturnVal()
+	{
+		return returnVal;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public VariableType getReturnType()
+	{
+		return returnType;
 	}
 
 	@Override

@@ -1,8 +1,7 @@
 package dev.theturkey.discordscript.program.codeblock;
 
 import dev.theturkey.discordscript.TokenStream;
-import dev.theturkey.discordscript.program.OutputWrapper;
-import dev.theturkey.discordscript.program.VariableTypeWrapper;
+import dev.theturkey.discordscript.program.Scope;
 import dev.theturkey.discordscript.tokenizer.Token;
 import dev.theturkey.discordscript.tokenizer.TokenEnum;
 
@@ -31,13 +30,13 @@ public class ForLoopBlock extends CodeBlock
 			return false;
 
 		stream.getNextRealToken();
-		variableBlock = new VariableBlock(this, new VariableTypeWrapper(stream), stream);
+		variableBlock = new VariableBlock(stream);
 
 		Token t = stream.getCurrentToken();
 		if(t.getType() == TokenEnum.COLON)
 		{
 			if(!assertNextToken(TokenEnum.PLAIN_STRING))
-				return false;
+			return false;
 			stream.getNextRealToken();
 		}
 		else
@@ -68,9 +67,21 @@ public class ForLoopBlock extends CodeBlock
 	}
 
 	@Override
-	public void execute(OutputWrapper out)
+	public void execute(Scope scope)
 	{
+		Scope innerScope = new Scope(scope);
+		while(conditionBlock.getValue(scope) && !innerScope.isBreaked() && !innerScope.isReturned())
+		{
+			for(CodeBlock cb : internalCodeBlocks)
+			{
+				cb.execute(innerScope);
+				if(innerScope.isBreaked() || innerScope.isReturned() || innerScope.isContinued())
+					break;
+			}
 
+			if(innerScope.isReturned())
+				scope.setReturned(innerScope.getReturnVal());
+		}
 	}
 
 	@Override

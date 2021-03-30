@@ -1,8 +1,7 @@
 package dev.theturkey.discordscript.program.codeblock;
 
 import dev.theturkey.discordscript.TokenStream;
-import dev.theturkey.discordscript.program.OutputWrapper;
-import dev.theturkey.discordscript.program.VariableTypeWrapper;
+import dev.theturkey.discordscript.program.Scope;
 import dev.theturkey.discordscript.tokenizer.Token;
 import dev.theturkey.discordscript.tokenizer.TokenEnum;
 
@@ -61,9 +60,9 @@ public abstract class CodeBlock
 		{
 			Token nnt = stream.peekNextRealToken(1);
 			if(nnt.getType() == TokenEnum.LEFT_PARENTHESIS)
-				return new FunctionBlock(stream, new VariableTypeWrapper(stream));
+				return new FunctionBlock(stream);
 			else
-				return new VariableBlock(this, new VariableTypeWrapper(stream), stream);
+				return new VariableBlock(stream);
 		}
 
 		switch(token.getType())
@@ -76,8 +75,6 @@ public abstract class CodeBlock
 				return new ForLoopBlock(stream);
 			case IF:
 				return new IfBlock(stream);
-			case ELSE:
-				return new ElseBlock(stream);
 			case PLAIN_STRING:
 				Token nextToken = stream.peekNextRealToken();
 				if(nextToken.getType() == TokenEnum.LEFT_PARENTHESIS)
@@ -99,15 +96,14 @@ public abstract class CodeBlock
 			case MULTI_COMMENT_START:
 				return new MultiLineCommentBlock(stream);
 			case LEFT_PARENTHESIS:
-				VariableTypeWrapper wrapper = new VariableTypeWrapper(stream);
 				if(stream.hasErrored())
 					return null;
 
 				Token nnt = stream.peekNextRealToken(1);
 				if(nnt.getType() == TokenEnum.LEFT_PARENTHESIS)
-					return new FunctionBlock(stream, wrapper);
+					return new FunctionBlock(stream);
 				else
-					return new VariableBlock(this, wrapper, stream);
+					return new VariableBlock(stream);
 			case RETURN:
 				return new ReturnCodeBlock(stream);
 			case CONTINUE:
@@ -120,7 +116,7 @@ public abstract class CodeBlock
 
 	public abstract boolean parse(TokenStream stream);
 
-	public abstract void execute(OutputWrapper out);
+	public abstract void execute(Scope scope);
 
 	public abstract String getBlockString();
 }

@@ -1,7 +1,7 @@
 package dev.theturkey.discordscript.program.codeblock;
 
 import dev.theturkey.discordscript.TokenStream;
-import dev.theturkey.discordscript.program.OutputWrapper;
+import dev.theturkey.discordscript.program.Scope;
 import dev.theturkey.discordscript.tokenizer.TokenEnum;
 
 import java.util.ArrayList;
@@ -9,6 +9,7 @@ import java.util.List;
 
 public class DoWhileLoopBlock extends CodeBlock
 {
+	private ConditionBlock conditionBlock;
 	private List<CodeBlock> internalCodeBlocks = new ArrayList<>();
 
 	public DoWhileLoopBlock(TokenStream wrapper)
@@ -39,7 +40,7 @@ public class DoWhileLoopBlock extends CodeBlock
 		if(!assertNextToken(TokenEnum.LEFT_PARENTHESIS))
 			return false;
 
-		//TODO Condition
+		conditionBlock = new ConditionBlock(stream);
 
 		if(!assertNextToken(TokenEnum.RIGHT_PARENTHESIS))
 			return false;
@@ -48,9 +49,21 @@ public class DoWhileLoopBlock extends CodeBlock
 	}
 
 	@Override
-	public void execute(OutputWrapper out)
+	public void execute(Scope scope)
 	{
+		Scope innerScope = new Scope(scope);
+		do
+		{
+			for(CodeBlock cb : internalCodeBlocks)
+			{
+				cb.execute(innerScope);
+				if(innerScope.isBreaked() || innerScope.isReturned() || innerScope.isContinued())
+					break;
+			}
 
+			if(innerScope.isReturned())
+				scope.setReturned(innerScope.getReturnVal());
+		} while(conditionBlock.getValue(scope) && !innerScope.isBreaked() && !innerScope.isReturned());
 	}
 
 	@Override

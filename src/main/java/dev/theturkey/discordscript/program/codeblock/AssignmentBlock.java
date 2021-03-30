@@ -1,13 +1,16 @@
 package dev.theturkey.discordscript.program.codeblock;
 
 import dev.theturkey.discordscript.TokenStream;
-import dev.theturkey.discordscript.program.OutputWrapper;
+import dev.theturkey.discordscript.program.ExpressionType;
+import dev.theturkey.discordscript.program.Scope;
+import dev.theturkey.discordscript.program.variables.VariableInstance;
 import dev.theturkey.discordscript.tokenizer.Token;
 import dev.theturkey.discordscript.tokenizer.TokenEnum;
 
 public class AssignmentBlock extends CodeBlock
 {
-
+	private String varName;
+	private ExpressionType expressionType;
 	private ExpressionBlock expression;
 
 	public AssignmentBlock(TokenStream wrapper)
@@ -21,7 +24,10 @@ public class AssignmentBlock extends CodeBlock
 		if(!assertCurrentToken(TokenEnum.PLAIN_STRING))
 			return false;
 
+		this.varName = stream.getTokenStr();
+
 		Token t = stream.getNextRealToken();
+		expressionType = ExpressionType.getExpressionTypeFromToken(t.getType());
 		if(t.getType() == TokenEnum.PLUS_PLUS || t.getType() == TokenEnum.MINUS_MINUS)
 		{
 			stream.getNextToken();
@@ -42,9 +48,26 @@ public class AssignmentBlock extends CodeBlock
 	}
 
 	@Override
-	public void execute(OutputWrapper out)
+	public void execute(Scope scope)
 	{
+		VariableInstance variableInstance = scope.getVariableFromName(varName);
 
+		if(variableInstance == null)
+		{
+			scope.throwError("VariableDoesNotExistError", "");
+			return;
+		}
+
+		expression.execute(scope);
+
+		if(expressionType == ExpressionType.EQUALS)
+		{
+			variableInstance.setValue(expression.getValue());
+		}
+		else
+		{
+			//TODO: Handle ++, --, +=, -=
+		}
 	}
 
 	@Override

@@ -1,14 +1,18 @@
 package dev.theturkey.discordscript.program.codeblock;
 
 import dev.theturkey.discordscript.TokenStream;
-import dev.theturkey.discordscript.program.OutputWrapper;
+import dev.theturkey.discordscript.program.FunctionInstance;
+import dev.theturkey.discordscript.program.Scope;
 import dev.theturkey.discordscript.tokenizer.Token;
 import dev.theturkey.discordscript.tokenizer.TokenEnum;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FunctionCallBlock extends CodeBlock
 {
-
-	private ExpressionBlock expression;
+	private String functionName;
+	private List<ArgumentBlock> arguments;
 
 	public FunctionCallBlock(TokenStream wrapper)
 	{
@@ -21,14 +25,17 @@ public class FunctionCallBlock extends CodeBlock
 		if(!assertCurrentToken(TokenEnum.PLAIN_STRING))
 			return false;
 
+		functionName = stream.getTokenStr();
+
 		if(!assertNextToken(TokenEnum.LEFT_PARENTHESIS))
 			return false;
 
 		Token t = stream.getCurrentToken();
 
+		arguments = new ArrayList<>();
 		while(t.getType() != TokenEnum.RIGHT_PARENTHESIS)
 		{
-			ArgumentBlock argumentBlock = new ArgumentBlock(stream);
+			arguments.add(new ArgumentBlock(stream));
 			t = stream.getCurrentToken();
 			if(t.getType() == TokenEnum.COMMA)
 				t = stream.getNextRealToken();
@@ -38,9 +45,19 @@ public class FunctionCallBlock extends CodeBlock
 	}
 
 	@Override
-	public void execute(OutputWrapper out)
+	public void execute(Scope scope)
 	{
+		FunctionInstance function = scope.getFunctionFromName(functionName);
+		Object[] argsToPass = new Object[arguments.size()];
+		for(int i = 0; i < arguments.size(); i++)
+		{
+			ArgumentBlock argumentBlock = arguments.get(i);
+			argumentBlock.execute(scope);
+			argsToPass[i] = argumentBlock.getValue();
+		}
 
+		function.invoke(argsToPass);
+		//TODO: Handle the return
 	}
 
 	@Override

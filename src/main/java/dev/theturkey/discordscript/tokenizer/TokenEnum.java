@@ -19,6 +19,7 @@ public enum TokenEnum
 
 	CONTINUE("continue"),
 	RETURN("return"),
+	BREAK("break"),
 
 	LEFT_SQUARE_BRACE("["),
 	RIGHT_SQUARE_BRACE("]"),

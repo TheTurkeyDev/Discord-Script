@@ -1,13 +1,12 @@
 package dev.theturkey.discordscript.program.codeblock;
 
 import dev.theturkey.discordscript.TokenStream;
-import dev.theturkey.discordscript.program.OutputWrapper;
-import dev.theturkey.discordscript.tokenizer.Token;
-import dev.theturkey.discordscript.tokenizer.TokenEnum;
+import dev.theturkey.discordscript.program.Scope;
 
 public class ConditionBlock extends CodeBlock
 {
 	private ExpressionBlock expressionBlock;
+
 	public ConditionBlock(TokenStream wrapper)
 	{
 		super(wrapper);
@@ -21,10 +20,18 @@ public class ConditionBlock extends CodeBlock
 	}
 
 	@Override
-	public void execute(OutputWrapper out)
+	public void execute(Scope scope)
 	{
-
+		expressionBlock.execute(scope);
 	}
+
+	public boolean getValue(Scope scope)
+	{
+		execute(scope);
+		Object val = expressionBlock.getValue();
+		return val.equals(1) || val.equals(true);
+	}
+
 
 	@Override
 	public String getBlockString()
