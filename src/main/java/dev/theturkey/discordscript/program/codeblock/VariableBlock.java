@@ -11,8 +11,8 @@ public class VariableBlock extends CodeBlock
 {
 	private VariableType variableType;
 	private String name;
-	private ExpressionBlock value = null;
-	private boolean isArray = false;
+	private ExpressionBlock value;
+	private boolean isArray;
 
 	public VariableBlock(TokenStream stream)
 	{
@@ -23,6 +23,7 @@ public class VariableBlock extends CodeBlock
 	public boolean parse(TokenStream stream)
 	{
 		variableType = VariableType.getVariableType(stream);
+		isArray = false;
 		if(stream.getNextRealToken().getType() == TokenEnum.LEFT_SQUARE_BRACE)
 		{
 			isArray = true;

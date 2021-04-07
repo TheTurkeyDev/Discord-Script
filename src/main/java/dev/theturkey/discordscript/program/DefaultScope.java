@@ -3,6 +3,8 @@ package dev.theturkey.discordscript.program;
 import dev.theturkey.discordscript.TokenStream;
 import dev.theturkey.discordscript.program.codeblock.FunctionBlock;
 
+import java.util.Arrays;
+
 public class DefaultScope extends Scope
 {
 	public DefaultScope(OutputWrapper wrapper)
@@ -30,7 +32,6 @@ public class DefaultScope extends Scope
 		@Override
 		public void execute(Scope scope)
 		{
-			System.out.println(passedArgs);
 			if(passedArgs.length < 1)
 			{
 				scope.throwError("MissingArgumentError", "");

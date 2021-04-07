@@ -29,11 +29,11 @@ public class ArrayBlock extends CodeBlock
 			if(t.getType() == TokenEnum.COMMA)
 			{
 				contents.add(content.toString());
+				content = new StringBuilder();
 			}
 			else
 			{
 				content.append(stream.getTokenStr());
-				content = new StringBuilder();
 			}
 
 			t = stream.getNextToken();

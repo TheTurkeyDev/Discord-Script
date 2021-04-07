@@ -12,6 +12,11 @@ public abstract class CodeBlock
 {
 	private TokenStream wrapper;
 
+	public CodeBlock()
+	{
+		this.wrapper = null;
+	}
+
 	public CodeBlock(TokenStream wrapper)
 	{
 		this.wrapper = wrapper;
@@ -99,7 +104,19 @@ public abstract class CodeBlock
 				if(stream.hasErrored())
 					return null;
 
-				Token nnt = stream.peekNextRealToken(1);
+				int parenMissing = 1;
+				int skip = 1;
+				while(parenMissing > 0)
+				{
+					Token skipToken = stream.peekNextRealToken(skip);
+					if(skipToken.getType() == TokenEnum.RIGHT_PARENTHESIS)
+						parenMissing--;
+					else if(skipToken.getType() == TokenEnum.LEFT_PARENTHESIS)
+						parenMissing++;
+					skip++;
+				}
+
+				Token nnt = stream.peekNextRealToken(skip+1);
 				if(nnt.getType() == TokenEnum.LEFT_PARENTHESIS)
 					return new FunctionBlock(stream);
 				else

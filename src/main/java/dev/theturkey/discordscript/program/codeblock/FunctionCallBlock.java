@@ -30,15 +30,15 @@ public class FunctionCallBlock extends CodeBlock
 		if(!assertNextToken(TokenEnum.LEFT_PARENTHESIS))
 			return false;
 
-		Token t = stream.getCurrentToken();
+		Token t = stream.peekNextRealToken();
 
 		arguments = new ArrayList<>();
 		while(t.getType() != TokenEnum.RIGHT_PARENTHESIS)
 		{
 			arguments.add(new ArgumentBlock(stream));
 			t = stream.getCurrentToken();
-			if(t.getType() == TokenEnum.COMMA)
-				t = stream.getNextRealToken();
+			if(t.getType() != TokenEnum.RIGHT_PARENTHESIS && !assertCurrentToken(TokenEnum.COMMA))
+				return false;
 		}
 
 		return assertCurrentToken(TokenEnum.RIGHT_PARENTHESIS);

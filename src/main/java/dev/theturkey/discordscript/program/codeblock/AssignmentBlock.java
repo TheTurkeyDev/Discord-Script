@@ -58,11 +58,14 @@ public class AssignmentBlock extends CodeBlock
 			return;
 		}
 
-		expression.execute(scope);
-
 		if(expressionType == ExpressionType.EQUALS)
 		{
 			variableInstance.setValue(expression.getValue());
+			expression.execute(scope);
+		}
+		else if(expressionType == ExpressionType.PLUS_PLUS)
+		{
+			variableInstance.setValue((int) variableInstance.value + 1);
 		}
 		else
 		{

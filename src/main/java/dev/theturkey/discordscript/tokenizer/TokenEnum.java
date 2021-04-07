@@ -93,6 +93,12 @@ public enum TokenEnum
 		return VAR_TYPES.contains(this);
 	}
 
+	private static final List<TokenEnum> COND_TYPES = Arrays.asList(NOT_EQUALS, NOT, EQUALITY, LESS_THAN, LESS_THAN_OR_EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, OR, AND);
+	public boolean isConditional()
+	{
+		return COND_TYPES.contains(this);
+	}
+
 	private static final List<TokenEnum> WHITE_SPACE_TYPES = Arrays.asList(SPACE, NEW_LINE, CARRIAGE_RETURN);
 	public boolean isWhiteSpace()
 	{

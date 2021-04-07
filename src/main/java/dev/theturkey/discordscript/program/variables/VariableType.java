@@ -57,7 +57,8 @@ public class VariableType
 			toReturn = new VariableType(firstType, new VariableType(secondType));
 		}
 
-		if(stream.getNextRealToken().getType() == TokenEnum.RIGHT_PARENTHESIS)
+		t = stream.getNextRealToken();
+		if(t.getType() != TokenEnum.RIGHT_PARENTHESIS)
 		{
 			stream.throwError("Tuple", ")", t.getType().name());
 			return null;

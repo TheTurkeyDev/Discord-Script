@@ -21,7 +21,7 @@ public class ElseBlock extends CodeBlock
 	@Override
 	public boolean parse(TokenStream stream)
 	{
-		if(!assertCurrentToken(TokenEnum.ELSE))
+		if(!assertNextToken(TokenEnum.ELSE))
 			return false;
 
 		//TODO: Add IF support here
@@ -62,6 +62,6 @@ public class ElseBlock extends CodeBlock
 	@Override
 	public String getBlockString()
 	{
-		return "If Statement";
+		return "Else Statement";
 	}
 }

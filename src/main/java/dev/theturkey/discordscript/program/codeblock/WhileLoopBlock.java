@@ -10,7 +10,7 @@ import java.util.List;
 public class WhileLoopBlock extends CodeBlock
 {
 	private ConditionBlock conditionBlock;
-	private List<CodeBlock> internalCodeBlocks = new ArrayList<>();
+	private List<CodeBlock> internalCodeBlocks;
 
 	public WhileLoopBlock(TokenStream wrapper)
 	{
