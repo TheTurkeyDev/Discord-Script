@@ -32,6 +32,7 @@ public class Scope
 	{
 		errored = true;
 		this.output.writeLine(error);
+		this.output.writeLine(details);
 	}
 
 	public OutputWrapper getOutput()
@@ -72,6 +73,8 @@ public class Scope
 		FunctionInstance func = new FunctionInstance(this, functions.get(name));
 		if(func.getFunctionBlock() == null && parentScope != null)
 			func = parentScope.getFunctionFromName(name);
+		if(func == null || func.getFunctionBlock() == null)
+			return null;
 		return func;
 	}
 

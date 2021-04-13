@@ -13,9 +13,10 @@ public class FunctionInstance
 		this.functionBlock = functionBlock;
 	}
 
-	public void invoke(Object[] args)
+	public Object invoke(Object[] args)
 	{
 		this.functionBlock.execute(scope, args);
+		return this.functionBlock.getReturnVal();
 	}
 
 	public FunctionBlock getFunctionBlock()

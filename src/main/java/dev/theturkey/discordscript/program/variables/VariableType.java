@@ -25,6 +25,11 @@ public class VariableType
 		return secondType != null;
 	}
 
+	public boolean isNumber()
+	{
+		return secondType == null && this.type.isNumber();
+	}
+
 	public static VariableType getVariableType(TokenStream stream)
 	{
 		Token t;

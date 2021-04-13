@@ -7,6 +7,7 @@ public enum TokenEnum
 {
 	VOID("void"),
 	INT("int"),
+	LONG("long"),
 	STRING("string"),
 	FLOAT("float"),
 	BOOLEAN("boolean"),
@@ -20,6 +21,8 @@ public enum TokenEnum
 	CONTINUE("continue"),
 	RETURN("return"),
 	BREAK("break"),
+	TRUE("true"),
+	FALSE("false"),
 
 	LEFT_SQUARE_BRACE("["),
 	RIGHT_SQUARE_BRACE("]"),
@@ -34,7 +37,8 @@ public enum TokenEnum
 	MINUS_MINUS("--"),
 	MULTIPLY("*"),
 	DIVIDE("/"),
-	POWER("^"),
+	MODULUS("%"),
+	//POWER("^"),
 	EQUALS("="),
 	PLUS_EQUALS("+="),
 	MINUS_EQUALS("-="),

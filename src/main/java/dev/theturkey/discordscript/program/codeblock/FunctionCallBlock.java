@@ -3,6 +3,7 @@ package dev.theturkey.discordscript.program.codeblock;
 import dev.theturkey.discordscript.TokenStream;
 import dev.theturkey.discordscript.program.FunctionInstance;
 import dev.theturkey.discordscript.program.Scope;
+import dev.theturkey.discordscript.program.variables.VariableType;
 import dev.theturkey.discordscript.tokenizer.Token;
 import dev.theturkey.discordscript.tokenizer.TokenEnum;
 
@@ -12,7 +13,7 @@ import java.util.List;
 public class FunctionCallBlock extends CodeBlock
 {
 	private String functionName;
-	private List<ArgumentBlock> arguments;
+	private List<ExpressionBlock> arguments;
 
 	public FunctionCallBlock(TokenStream wrapper)
 	{
@@ -35,7 +36,7 @@ public class FunctionCallBlock extends CodeBlock
 		arguments = new ArrayList<>();
 		while(t.getType() != TokenEnum.RIGHT_PARENTHESIS)
 		{
-			arguments.add(new ArgumentBlock(stream));
+			arguments.add(new ExpressionBlock(stream));
 			t = stream.getCurrentToken();
 			if(t.getType() != TokenEnum.RIGHT_PARENTHESIS && !assertCurrentToken(TokenEnum.COMMA))
 				return false;
@@ -47,22 +48,37 @@ public class FunctionCallBlock extends CodeBlock
 	@Override
 	public void execute(Scope scope)
 	{
+		executeAndGetReturn(scope);
+	}
+
+	public Object executeAndGetReturn(Scope scope)
+	{
 		FunctionInstance function = scope.getFunctionFromName(functionName);
+		if(function == null)
+		{
+			scope.throwError("FunctionNotDefinedException", functionName + " is not a defined function name!");
+			return null;
+		}
+
 		Object[] argsToPass = new Object[arguments.size()];
 		for(int i = 0; i < arguments.size(); i++)
 		{
-			ArgumentBlock argumentBlock = arguments.get(i);
+			ExpressionBlock argumentBlock = arguments.get(i);
 			argumentBlock.execute(scope);
 			argsToPass[i] = argumentBlock.getValue();
 		}
 
-		function.invoke(argsToPass);
-		//TODO: Handle the return
+		return function.invoke(argsToPass);
 	}
 
 	@Override
 	public String getBlockString()
 	{
 		return "Function Call";
+	}
+
+	public VariableType getFunctionReturnType(Scope scope)
+	{
+		return scope.getFunctionFromName(functionName).getFunctionBlock().getReturnType();
 	}
 }

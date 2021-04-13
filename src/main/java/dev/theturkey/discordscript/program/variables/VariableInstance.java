@@ -30,7 +30,7 @@ public class VariableInstance
 
 	public void setIsArray(boolean isArray)
 	{
-		this.isArray = true;
+		this.isArray = isArray;
 	}
 
 	public boolean isInitialized()
@@ -44,11 +44,15 @@ public class VariableInstance
 		this.value = object;
 	}
 
-	public int getAsInt()
+	public Number getAsNumber()
 	{
 		if(!this.isInitialized())
 			scope.throwError("VariableNotInitailizedError", "");
-		return (int) value;
+		if(value instanceof Number)
+			return (Number) value;
+		else if(value instanceof Boolean)
+			return (boolean) value ? 1 : 0;
+		return null;
 	}
 
 	public void setIndexValue(int index, Object value)

@@ -24,7 +24,8 @@ while(run)
 
 (string, int) mostOccur = getMostCount(["Test", "Hello", "test", "Test", "hi!", "TEST", "Test", "☃"]);
 
-msg('The most common string is "${mostOccur[0]}" occuring ${mostOccur[1]} times!');
+//msg('The most common string is "${mostOccur[0]}" occuring ${mostOccur[1]} times!');
+msg("The most common string is '" + mostOccur[0] + "' occuring " + mostOccur[1] + " times!");
 
 /* 
     This is a bulk comment commenting about how the below function is not used!

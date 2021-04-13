@@ -2,6 +2,7 @@ package dev.theturkey.discordscript.program.codeblock;
 
 import dev.theturkey.discordscript.TokenStream;
 import dev.theturkey.discordscript.program.Scope;
+import dev.theturkey.discordscript.program.variables.VariableInstance;
 import dev.theturkey.discordscript.tokenizer.Token;
 import dev.theturkey.discordscript.tokenizer.TokenEnum;
 
@@ -35,9 +36,7 @@ public class ForLoopBlock extends CodeBlock
 		Token t = stream.getCurrentToken();
 		if(t.getType() == TokenEnum.COLON)
 		{
-			if(!assertNextToken(TokenEnum.PLAIN_STRING))
-			return false;
-			stream.getNextRealToken();
+			expressionBlock = new ExpressionBlock(stream);
 		}
 		else
 		{
@@ -70,17 +69,50 @@ public class ForLoopBlock extends CodeBlock
 	public void execute(Scope scope)
 	{
 		Scope innerScope = new Scope(scope);
-		while(conditionBlock.getValue(scope) && !innerScope.isBreaked() && !innerScope.isReturned())
+		VariableInstance forVar = innerScope.createNewVariable(variableBlock.getVarType(), variableBlock.getVarName());
+		forVar.setScope(innerScope);
+		if(conditionBlock == null)
 		{
-			for(CodeBlock cb : internalCodeBlocks)
+			expressionBlock.execute(scope);
+			Object exprVal = expressionBlock.getValue();
+			if(!(exprVal instanceof List<?>))
 			{
-				cb.execute(innerScope);
-				if(innerScope.isBreaked() || innerScope.isReturned() || innerScope.isContinued())
+				scope.throwError("CastException", "Cannot cast " + exprVal + " to an array!");
+				return;
+			}
+			for(Object o : (List<?>) exprVal)
+			{
+				forVar.setValue(o);
+				for(CodeBlock cb : internalCodeBlocks)
+				{
+					cb.execute(innerScope);
+					if(innerScope.isBreaked() || innerScope.isReturned() || innerScope.isContinued())
+						break;
+				}
+
+				if(innerScope.isReturned())
+					scope.setReturned(innerScope.getReturnVal());
+
+				if(innerScope.isBreaked() || innerScope.isReturned())
 					break;
 			}
+		}
+		else
+		{
+			while(conditionBlock.getValue(scope) && !innerScope.isBreaked() && !innerScope.isReturned())
+			{
+				for(CodeBlock cb : internalCodeBlocks)
+				{
+					cb.execute(innerScope);
+					if(innerScope.isBreaked() || innerScope.isReturned() || innerScope.isContinued())
+						break;
+				}
 
-			if(innerScope.isReturned())
-				scope.setReturned(innerScope.getReturnVal());
+				expressionBlock.execute(scope);
+
+				if(innerScope.isReturned())
+					scope.setReturned(innerScope.getReturnVal());
+			}
 		}
 	}
 

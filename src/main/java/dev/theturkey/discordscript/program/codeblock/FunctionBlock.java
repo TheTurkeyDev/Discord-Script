@@ -2,7 +2,6 @@ package dev.theturkey.discordscript.program.codeblock;
 
 import dev.theturkey.discordscript.TokenStream;
 import dev.theturkey.discordscript.program.Scope;
-import dev.theturkey.discordscript.program.variables.VariableInstance;
 import dev.theturkey.discordscript.program.variables.VariableType;
 import dev.theturkey.discordscript.tokenizer.TokenEnum;
 
@@ -14,11 +13,11 @@ public class FunctionBlock extends CodeBlock
 	protected String name;
 	private VariableType returnType;
 	private List<CodeBlock> internalCodeBlocks;
-	private List<VariableInstance> arguments = new ArrayList<>();
+	private List<VariableBlock> arguments;
 
 	protected Object[] passedArgs;
 
-	private Object returnVal;
+	protected Object returnVal;
 
 	public FunctionBlock(TokenStream wrapper)
 	{
@@ -38,14 +37,13 @@ public class FunctionBlock extends CodeBlock
 		if(!assertNextToken(TokenEnum.LEFT_PARENTHESIS))
 			return false;
 
-		//TODO: Move to arguments block
-		int misMatch = 0;
-		while(stream.getNextRealToken().getType() != TokenEnum.RIGHT_PARENTHESIS || misMatch > 0)
+		arguments = new ArrayList<>();
+		stream.getNextRealToken();
+		while(stream.getCurrentToken().getType() != TokenEnum.RIGHT_PARENTHESIS)
 		{
-			if(stream.getCurrentToken().getType() == TokenEnum.LEFT_PARENTHESIS)
-				misMatch++;
-			else if(stream.getCurrentToken().getType() == TokenEnum.RIGHT_PARENTHESIS)
-				misMatch--;
+			arguments.add(new VariableBlock(stream));
+			if(stream.getCurrentToken().getType() == TokenEnum.COMMA)
+				stream.getNextRealToken();
 		}
 
 
@@ -67,10 +65,9 @@ public class FunctionBlock extends CodeBlock
 
 		for(int i = 0; i < arguments.size(); i++)
 		{
-			VariableInstance variableInstance = arguments.get(i);
-			VariableInstance newVar = innerScope.createNewVariable(variableInstance.type, variableInstance.name, i < passedArgs.length ? passedArgs[i] : variableInstance.value);
-			newVar.setScope(innerScope);
-			newVar.setIsArray(variableInstance.isArray);
+			VariableBlock vb = arguments.get(i);
+			vb.execute(scope);
+			scope.getVariableFromName(vb.getVarName()).setValue(passedArgs[i]);
 		}
 
 		for(CodeBlock cb : internalCodeBlocks)

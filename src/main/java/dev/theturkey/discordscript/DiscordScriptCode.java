@@ -42,15 +42,16 @@ public class DiscordScriptCode
 		client.onDisconnect().block();
 	}
 
+	private static final StringBuilder returnStr = new StringBuilder();
 
 	public static Mono<Message> runProgram(Message message)
 	{
 		if(!message.getAuthor().isPresent())
 			return message.getChannel().flatMap(channel -> channel.createMessage("Error, missing author???"));
 
-		final StringBuilder returnStr = new StringBuilder();
-		long start = System.currentTimeMillis();
 
+		long start = System.currentTimeMillis();
+		returnStr.setLength(0);
 
 		File f = new File("./res/temp/" + message.getAuthor().get().getUsername().hashCode() + ".txt");
 		try
@@ -80,6 +81,7 @@ public class DiscordScriptCode
 		} catch(Exception e)
 		{
 			e.printStackTrace();
+			returnStr.append("**Failed to run the program! Something dun messed up... ").append(e.getMessage()).append("**");
 		}
 		return message.getChannel().flatMap(channel -> channel.createMessage(returnStr.toString()));
 	}

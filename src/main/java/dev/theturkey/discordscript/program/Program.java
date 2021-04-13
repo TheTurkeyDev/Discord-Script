@@ -46,7 +46,16 @@ public class Program extends CodeBlock
 
 		Scope innerScope = new Scope(scope);
 		for(CodeBlock cb : codeBlocks)
+		{
+			if(innerScope.isErrorred())
+			{
+				scope.setErrored();
+				return;
+			}
+			if(cb instanceof FunctionBlock)
+				continue;
 			cb.execute(innerScope);
+		}
 	}
 
 	@Override
